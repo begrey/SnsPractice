@@ -7,7 +7,7 @@
 <body>
     <h1>메일 보내기</h1>
 
-    <form action="mail/send">
+    <form th:action="@{/mail/send}" method="post">
         <table>
             <tr>
                 <td>메일 주소</td>
@@ -28,6 +28,8 @@
                 </td>
             </tr>
         </table>
+        <button>발송</button>
     </form>
+
 </body>
 </html>
