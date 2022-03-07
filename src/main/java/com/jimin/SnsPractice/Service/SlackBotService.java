@@ -1,6 +1,8 @@
 package com.jimin.SnsPractice.Service;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -15,7 +17,7 @@ public class SlackBotService {
     private String slackToken;
 
     public void sendPhotoToUser(String intraId) {
-        String url = "https://slack.com/api/files.upload";
+        String url = "https://slack.com/api/chat.postMessage";
         String img = "https://profile.intra.42.fr/users/jimkwon/photo";
 
         HttpHeaders headers = new HttpHeaders();
@@ -23,9 +25,18 @@ public class SlackBotService {
         headers.add("Content-type", "application/json; charset=utf-8");
 
         String slackId = getSlackIdByEmail(intraId);
-        String body = "{\"channel\": \"" + slackId + "\", " +
-                "\"attachments\": [{\"text\": \"글과함께 보낸다\", \"image_url\": " + img + "}]}";
+        JSONObject jsonObject = new JSONObject();
+        JSONArray arr =new JSONArray();
+        jsonObject.put("channel", slackId);
+        JSONObject attachments = new JSONObject();
+        attachments.put("image_url", "https://is5-ssl.mzstatic.com/image/thumb/Purple3/v4/d3/72/5c/d3725c8f-c642-5d69-1904-aa36e4297885/source/256x256bb.jpg");
+        attachments.put("text", "HELLO");
+        attachments.put("pre-text", "HELLO");
+        arr.put(attachments);
+        jsonObject.put("attachments", arr);
 
+        String body = jsonObject.toString();
+        System.out.println(body);
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
         RestTemplate restTemplate = new RestTemplate();
 
@@ -47,7 +58,10 @@ public class SlackBotService {
         headers.add("Content-type", "application/json; charset=utf-8");
 
         String slackId = getSlackIdByEmail(intraId);
-        String body = "{\"channel\": \"" + slackId + "\", \"text\" : \"" + intraId + " 님, 반갑습니다! \"}";
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("channel", slackId);
+        jsonObject.put("text", intraId + " 님, 반갑습니다!");
+        String body = jsonObject.toString();
 
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
         RestTemplate restTemplate = new RestTemplate();
@@ -81,10 +95,8 @@ public class SlackBotService {
         );
         JSONObject jsonObject;
         jsonObject = new JSONObject(responseEntity.getBody());
-        //System.out.println(jsonObject);
-        String id = null;
         JSONObject profile = jsonObject.getJSONObject("user");
-        id = (String)profile.get("id");
+        String id = (String)profile.get("id");
         return id;
     }
 }
